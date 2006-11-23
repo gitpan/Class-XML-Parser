@@ -1,6 +1,7 @@
 lib/Class/XML/Parser.pm
 MANIFEST
 README
+Changes
 Makefile.PL
 t/01_flat.t
 t/02_flat_prune.t

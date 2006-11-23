@@ -31,44 +31,49 @@ EOXML
 
 my $dtd = Cwd::abs_path( "t/validator.dtd" );
 
-my $parser = Class::XML::Parser->new(
-    root_class      => 'ParseResult::TestHierarchy',
-    prune           => 1,
-    strip           => 1,
-    validate        => 1,
-    map_uri         => {
-        "http://example.com/validator.dtd"  => "file:$dtd",
-    },
-);
+SKIP: {
+    eval { require XML::Checker::Parser };
+    skip "XML::Checker::Parser not installed", 6 if $@;
 
-my $res = $parser->parse( $xml );
-my $expected = {
-    elem1   => {
-        y       => '64',
-        elem4   => {
-            elem4   => 'whitespace abounds',
+    my $parser = Class::XML::Parser->new(
+        root_class      => 'ParseResult::TestHierarchy',
+        prune           => 1,
+        strip           => 1,
+        validate        => 1,
+        map_uri         => {
+            "http://example.com/validator.dtd"  => "file:$dtd",
         },
-        elem2   => [
-            "Element2 text, 1st run",
-            "Element2 text, 2nd run",
-        ],
-        elem3   => {
-            attr1       => 'attr_val1',
-            attr2       => 'attr_val2',
-            elem_bottom => {
-                elem_bottom => 'bottom_value',
-                attr_bottom => 'attr_bottom_val',
+    );
+
+    my $res = $parser->parse( $xml );
+    my $expected = {
+        elem1   => {
+            y       => '64',
+            elem4   => {
+                elem4   => 'whitespace abounds',
             },
-        },
-    }
-};
+            elem2   => [
+                "Element2 text, 1st run",
+                "Element2 text, 2nd run",
+            ],
+            elem3   => {
+                attr1       => 'attr_val1',
+                attr2       => 'attr_val2',
+                elem_bottom => {
+                    elem_bottom => 'bottom_value',
+                    attr_bottom => 'attr_bottom_val',
+                },
+            },
+        }
+    };
 
-ok( ref $res, "expect a reference back" );
-is_deeply( $res, $expected, 'datastructure' );
-isa_ok( $res, 'ParseResult::TestHierarchy' );
-isa_ok( $res->elem1, 'ParseResult::TestHierarchy::Elem1' );
-isa_ok( $res->elem1->elem3, 'ParseResult::TestHierarchy::Elem3' );
-isa_ok( $res->elem1->elem3->elem_bottom, 'ParseResult::TestHierarchy::Bottom' );
+    ok( ref $res, "expect a reference back" );
+    is_deeply( $res, $expected, 'datastructure' );
+    isa_ok( $res, 'ParseResult::TestHierarchy' );
+    isa_ok( $res->elem1, 'ParseResult::TestHierarchy::Elem1' );
+    isa_ok( $res->elem1->elem3, 'ParseResult::TestHierarchy::Elem3' );
+    isa_ok( $res->elem1->elem3->elem_bottom, 'ParseResult::TestHierarchy::Bottom' );
+}
 
 # this just defines an AUTOLOADER, for quick-and-easy accessors/mutators
 package ParseBase;

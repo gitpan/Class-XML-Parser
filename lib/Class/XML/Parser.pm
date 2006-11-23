@@ -6,7 +6,7 @@ use warnings;
 use XML::Parser;
 use Carp qw( croak );
 
-our $VERSION = '0.9';
+our $VERSION = '0.9.01';
 
 my $_parse_instance = undef;
 

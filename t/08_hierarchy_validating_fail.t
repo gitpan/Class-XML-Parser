@@ -30,22 +30,27 @@ my $xml = <<'EOXML';
 </parser>
 EOXML
 
-my $dtd = Cwd::abs_path( "t/validator.dtd" );
+SKIP: {
+    eval { require XML::Checker::Parser };
+    skip "XML::Checker::Parser not installed", 2 if $@;
 
-my $parser = Class::XML::Parser->new(
-    root_class      => 'ParseResult::TestHierarchy',
-    prune           => 1,
-    strip           => 1,
-    validate        => 1,
-    map_uri         => {
-        "http://example.com/validator.dtd"  => "file:$dtd",
-    },
-);
+    my $dtd = Cwd::abs_path( "t/validator.dtd" );
 
-my $res = $parser->parse( $xml );
+    my $parser = Class::XML::Parser->new(
+        root_class      => 'ParseResult::TestHierarchy',
+        prune           => 1,
+        strip           => 1,
+        validate        => 1,
+        map_uri         => {
+            "http://example.com/validator.dtd"  => "file:$dtd",
+        },
+    );
 
-ok( ! defined $res, 'parse should return undef' );
-like( $parser->last_error, qr/bad order of Elements/, 'XML::Checker::Parser error' );
+    my $res = $parser->parse( $xml );
+
+    ok( ! defined $res, 'parse should return undef' );
+    like( $parser->last_error, qr/bad order of Elements/, 'XML::Checker::Parser error' );
+}
 
 # this just defines an AUTOLOADER, for quick-and-easy accessors/mutators
 package ParseBase;
